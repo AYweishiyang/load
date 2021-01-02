@@ -21,8 +21,8 @@ import java.io.IOException;
  * @author ay
  * @create 2020-12-13 11:41
  */
-public class TestData {
-    public static void main(String[] args) {
+public class LoadModel {
+    public static void main(String[] args) throws IOException {
         SparkSession spark = SparkSession
                 .builder()
                 .appName("RF")
@@ -110,13 +110,11 @@ public class TestData {
         Pipeline pipeline = new Pipeline()
                 .setStages(new PipelineStage[]{lightGBMRegressor});
 
-
         ParamMap[] paramGridBuilder = new ParamGridBuilder()
                 .addGrid(lightGBMRegressor.maxDepth(), new int[]{3,4})
-                .addGrid(lightGBMRegressor.numLeaves(), new int[]{31})
+                .addGrid(lightGBMRegressor.numLeaves(), new int[]{15,31})
                 .addGrid(lightGBMRegressor.learningRate(),new double[]{0.1})
                 .build();
-
 
         RegressionEvaluator regressionEvaluator1 = new RegressionEvaluator()
                 .setLabelCol("load")
@@ -134,7 +132,6 @@ public class TestData {
                 .setLabelCol("load")
                 .setPredictionCol("prediction")
                 .setMetricName("mae");
-
 
         // Train model. This also runs the indexer.
 
@@ -155,12 +152,10 @@ public class TestData {
         output.createOrReplaceTempView("all");
 
         Dataset<Row> prediction = crossValidatorModel.transform(predictionFeature);
-        try {
-            crossValidatorModel.save("file:///E:\\mi\\jupyter\\energy_forecasting_notebooks\\loadForecasting.model");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
+        crossValidatorModel.write().overwrite().save("file:///E:\\mi\\jupyter\\energy_forecasting_notebooks\\loadForecasting.model");
+
+        CrossValidatorModel loadModel = CrossValidatorModel.read().load("file:///E:\\mi\\jupyter\\energy_forecasting_notebooks\\loadForecasting.model");
 
         prediction.select("prediction", "load", "features").show(5);
 
@@ -172,16 +167,24 @@ public class TestData {
         System.out.println("(mse) on test data = " + mse);
         System.out.println("(r2) on test data = " + r2);
         System.out.println("(mae) on test data = " + mae);
+        System.out.println("----------------------------------------");
+        Dataset<Row> loadPrediction = loadModel.transform(predictionFeature);
 
+        double rmse1 = regressionEvaluator1.evaluate(loadPrediction);
+        double mse1 = regressionEvaluator2.evaluate(loadPrediction);
+        double r21 = regressionEvaluator3.evaluate(loadPrediction);
+        double mae1 = regressionEvaluator4.evaluate(loadPrediction);
+        System.out.println("(rmse1) on test data = " + rmse1);
+        System.out.println("(mse1) on test data = " + mse1);
+        System.out.println("(r21) on test data = " + r21);
+        System.out.println("(mae1) on test data = " + mae1);
 
         PipelineModel bestModel = (PipelineModel)crossValidatorModel.bestModel();
         Transformer[] stages = ((PipelineModel) crossValidatorModel.bestModel()).stages();
 
         System.out.println("bestModel.stages().length=" + bestModel.stages()[0].extractParamMap().toString());
 
-
         System.out.println("train-time= " + (end-start)/1000.0 + " s");
         spark.stop();
-
     }
 }

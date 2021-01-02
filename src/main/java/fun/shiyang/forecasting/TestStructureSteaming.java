@@ -1,6 +1,7 @@
 package fun.shiyang.forecasting;
 
 import org.apache.spark.api.java.function.FlatMapFunction;
+import org.apache.spark.ml.tuning.CrossValidatorModel;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
@@ -18,6 +19,7 @@ import java.util.Arrays;
  */
 public class TestStructureSteaming {
     public static void main(String[] args) throws StreamingQueryException {
+
         SparkSession spark = SparkSession
                 .builder()
                 .appName("JavaStructuredNetworkWordCount")
@@ -43,6 +45,7 @@ public class TestStructureSteaming {
 //                .format("console")
 //                .start();
 
+//        CrossValidatorModel crossValidatorModel = new CrossValidatorModel
         StreamingQuery query = wordCounts
                 .selectExpr("CAST(value AS STRING)","CAST(count AS STRING)")
                 .writeStream()
