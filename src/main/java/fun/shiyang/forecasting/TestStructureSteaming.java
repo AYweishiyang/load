@@ -7,6 +7,8 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.streaming.StreamingQuery;
 import org.apache.spark.sql.streaming.StreamingQueryException;
+import scala.collection.script.Start;
+import shapeless.the;
 
 import java.util.Arrays;
 
@@ -35,16 +37,20 @@ public class TestStructureSteaming {
 //         Generate running word count
         Dataset<Row> wordCounts = words.groupBy("value").count();
 
-        // Start running the query that prints the running counts to the console
+//         Start running the query that prints the running counts to the console
 //        StreamingQuery query = wordCounts.writeStream()
 //                .outputMode("complete")
 //                .format("console")
 //                .start();
 
-        StreamingQuery query = wordCounts.writeStream()
+        StreamingQuery query = wordCounts
+                .selectExpr("CAST(value AS STRING)","CAST(count AS STRING)")
+                .writeStream()
+                .outputMode("complete")
                 .format("kafka")
                 .option("kafka.bootstrap.servers", "localhost:9092")
                 .option("topic", "test")
+                .option("checkpointLocation","./haha")
                 .start();
 
         query.awaitTermination();
