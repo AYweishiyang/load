@@ -29,7 +29,7 @@ public class TestKafka {
                 .load();
 
         Dataset<Row> prediction = loadModel.transform(dataset);
-        
+
 //        df.selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)");
         StreamingQuery query = dataset
                 .selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)","topic","partition","offset","timestamp","timestampType")
