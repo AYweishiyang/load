@@ -7,27 +7,35 @@ import org.apache.spark.ml.PipelineStage;
 import org.apache.spark.ml.Transformer;
 import org.apache.spark.ml.evaluation.RegressionEvaluator;
 import org.apache.spark.ml.feature.VectorAssembler;
+import org.apache.spark.ml.param.Param;
 import org.apache.spark.ml.param.ParamMap;
+import org.apache.spark.ml.regression.RandomForestRegressor;
 import org.apache.spark.ml.tuning.CrossValidator;
 import org.apache.spark.ml.tuning.CrossValidatorModel;
 import org.apache.spark.ml.tuning.ParamGridBuilder;
+import org.apache.spark.mllib.tree.model.RandomForestModel;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
+import scala.Option;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * 使用lightGBM
+ * 使用随机森林回归
  * @author ay
  * @create 2020-12-13 11:41
  */
-public class LoadModel {
+public class RF {
     public static void main(String[] args) throws IOException {
         SparkSession spark = SparkSession
                 .builder()
                 .appName("RF")
                 .config("spark.master","local[*]")
+                .config("spark.eventLog.enabled", "false")
                 .getOrCreate();
         Dataset<Row> data = spark
                 .read()
@@ -36,6 +44,7 @@ public class LoadModel {
                 .option("multiLine", true)
                 .option("inferSchema", true)
                 .load("file:///E:\\mi\\jupyter\\energy_forecasting_notebooks\\final-data.csv");
+//                .load("")
 //        data.createOrReplaceTempView("load");
 //        data.orderBy("load").show();
 
@@ -44,7 +53,7 @@ public class LoadModel {
 //                        "temp",
                         "temp1",
                         "dew1",
-                //       "condition1",
+//                       "condition1",
                         "humi1",
         //              "windspeed",
         //              "precip",
@@ -94,26 +103,42 @@ public class LoadModel {
         output.show(10);
 
         output.createOrReplaceTempView("all");
-        Dataset<Row> trainingData = spark.sql("select * from all where (timestamp < '2019-03-01 00:00:00')");
-        Dataset<Row> predictionFeature = spark.sql("select * from all where (timestamp >= '2019-04-01 00:00:00') and (timestamp < '2019-05-01 00:00:00')");
+        Dataset<Row> trainingData = spark.sql("select * from all where (timestamp < '2019-01-01 00:00:00')");
 
-//        Dataset<Row> testData = spark.sql("select * from all where (timestamp >= '2019-06-01 00:00:00') and (timestamp < '2019-07-01 00:00:00')");
+        Dataset<Row> predictionFeature1 = spark.sql("select * from all where (timestamp >= '2019-05-01 00:00:00') and (timestamp < '2019-05-02 00:00:00')");
+        Dataset<Row> predictionFeature2 = spark.sql("select * from all where (timestamp >= '2019-05-02 00:00:00') and (timestamp < '2019-05-03 00:00:00')");
+        Dataset<Row> predictionFeature3 = spark.sql("select * from all where (timestamp >= '2019-05-03 00:00:00') and (timestamp < '2019-05-04 00:00:00')");
+        Dataset<Row> predictionFeature4 = spark.sql("select * from all where (timestamp >= '2019-05-04 00:00:00') and (timestamp < '2019-05-05 00:00:00')");
+        Dataset<Row> predictionFeature5 = spark.sql("select * from all where (timestamp >= '2019-05-05 00:00:00') and (timestamp < '2019-05-06 00:00:00')");
+        Dataset<Row> predictionFeature6 = spark.sql("select * from all where (timestamp >= '2019-05-06 00:00:00') and (timestamp < '2019-05-07 00:00:00')");
+        Dataset<Row> predictionFeature7 = spark.sql("select * from all where (timestamp >= '2019-06-07 00:00:00') and (timestamp < '2019-06-08 00:00:00')");
+        Dataset<Row> predictionFeature8 = spark.sql("select * from all where (timestamp >= '2019-06-08 00:00:00') and (timestamp < '2019-06-09 00:00:00')");
+        Dataset<Row> predictionFeature9 = spark.sql("select * from all where (timestamp >= '2019-06-09 00:00:00') and (timestamp < '2019-06-10 00:00:00')");
 
-//        Dataset<Row>[] splits = selectData.randomSplit(new double[] {0.7, 0.3});
-//        Dataset<Row> trainingData = splits[0];
-//        Dataset<Row> testData = splits[1];
+        List<Dataset<Row>> predictionFeatureList= new ArrayList<>();
 
-        LightGBMRegressor lightGBMRegressor = new LightGBMRegressor()
+        predictionFeatureList.add(predictionFeature1);
+        predictionFeatureList.add(predictionFeature2);
+        predictionFeatureList.add(predictionFeature3);
+        predictionFeatureList.add(predictionFeature4);
+        predictionFeatureList.add(predictionFeature5);
+        predictionFeatureList.add(predictionFeature6);
+        predictionFeatureList.add(predictionFeature7);
+        predictionFeatureList.add(predictionFeature8);
+        predictionFeatureList.add(predictionFeature9);
+
+        RandomForestRegressor rf = new RandomForestRegressor()
                 .setLabelCol("load")
                 .setFeaturesCol("features");
 
         Pipeline pipeline = new Pipeline()
-                .setStages(new PipelineStage[]{lightGBMRegressor});
+                .setStages(new PipelineStage[]{rf});
 
         ParamMap[] paramGridBuilder = new ParamGridBuilder()
-//                .addGrid(lightGBMRegressor.maxDepth(), new int[]{3,4})
-                .addGrid(lightGBMRegressor.numLeaves(), new int[]{15,31})
-//                .addGrid(lightGBMRegressor.learningRate(),new double[]{0.1})
+//                .addGrid(rf.numTrees(), new int[]{80,100,150})
+                .addGrid(rf.maxDepth(),new int[]{3,4,5})
+//                .addGrid(rf.subsamplingRate(),new double[]{0.7,0.9,1.0})
+//                .addGrid(rf.maxBins(),new int[]{16,24,32})
                 .build();
 
         RegressionEvaluator regressionEvaluator1 = new RegressionEvaluator()
@@ -142,8 +167,8 @@ public class LoadModel {
                 .setEvaluator(regressionEvaluator3)
                 .setEvaluator(regressionEvaluator4)
                 .setEstimatorParamMaps(paramGridBuilder)
-                .setNumFolds(3)
-                .setParallelism(10);
+                .setNumFolds(5)
+                .setParallelism(12);
         long start = System.currentTimeMillis();
         CrossValidatorModel crossValidatorModel = crossValidator.fit(trainingData);
 
@@ -151,38 +176,37 @@ public class LoadModel {
 
         output.createOrReplaceTempView("all");
 
-        Dataset<Row> prediction = crossValidatorModel.transform(predictionFeature);
+        List<Dataset<Row>> predictions = predictionFeatureList.stream().map(item -> {
+            Dataset<Row> transform = crossValidatorModel.transform(item);
+            return transform;
+        }).collect(Collectors.toList());
 
-        crossValidatorModel.write().overwrite().save("file:///E:\\mi\\jupyter\\energy_forecasting_notebooks\\loadForecasting.model");
 
-        CrossValidatorModel loadModel = CrossValidatorModel.read().load("file:///E:\\mi\\jupyter\\energy_forecasting_notebooks\\loadForecasting.model");
+//        crossValidatorModel.write().overwrite().save("file:///E:\\mi\\jupyter\\energy_forecasting_notebooks\\loadForecasting.model");
+//
+//        CrossValidatorModel loadModel = CrossValidatorModel.read().load("file:///E:\\mi\\jupyter\\energy_forecasting_notebooks\\loadForecasting.model");
 
-        prediction.select("prediction", "load", "features").show(5);
+        predictions.forEach(item -> {
+            double rmse = regressionEvaluator1.evaluate(item);
+            double mse = regressionEvaluator2.evaluate(item);
+            double r2 = regressionEvaluator3.evaluate(item);
+            double mae = regressionEvaluator4.evaluate(item);
+            System.out.println("(rmse) on test data = " + rmse);
+//            System.out.println("(mse) on test data = " + mse);
+//            System.out.println("(r2) on test data = " + r2);
+//            System.out.println("(mae) on test data = " + mae);
+//            System.out.println("----------------------------------------");
+            Dataset<Row> prediction = item.select("prediction");
 
-        double rmse = regressionEvaluator1.evaluate(prediction);
-        double mse = regressionEvaluator2.evaluate(prediction);
-        double r2 = regressionEvaluator3.evaluate(prediction);
-        double mae = regressionEvaluator4.evaluate(prediction);
-        System.out.println("(rmse) on test data = " + rmse);
-        System.out.println("(mse) on test data = " + mse);
-        System.out.println("(r2) on test data = " + r2);
-        System.out.println("(mae) on test data = " + mae);
-        System.out.println("----------------------------------------");
-        Dataset<Row> loadPrediction = loadModel.transform(predictionFeature);
 
-        double rmse1 = regressionEvaluator1.evaluate(loadPrediction);
-        double mse1 = regressionEvaluator2.evaluate(loadPrediction);
-        double r21 = regressionEvaluator3.evaluate(loadPrediction);
-        double mae1 = regressionEvaluator4.evaluate(loadPrediction);
-        System.out.println("(rmse1) on test data = " + rmse1);
-        System.out.println("(mse1) on test data = " + mse1);
-        System.out.println("(r21) on test data = " + r21);
-        System.out.println("(mae1) on test data = " + mae1);
+        });
+
+//        Dataset<Row> loadPrediction = loadModel.transform(predictionFeature);
 
         PipelineModel bestModel = (PipelineModel)crossValidatorModel.bestModel();
-        Transformer[] stages = ((PipelineModel) crossValidatorModel.bestModel()).stages();
 
         System.out.println("bestModel.stages().length=" + bestModel.stages()[0].extractParamMap().toString());
+
 
         System.out.println("train-time= " + (end-start)/1000.0 + " s");
         spark.stop();
