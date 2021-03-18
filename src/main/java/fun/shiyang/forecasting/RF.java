@@ -21,6 +21,7 @@ import scala.Option;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,7 +36,7 @@ public class RF {
                 .builder()
                 .appName("RF")
                 .config("spark.master","local[*]")
-                .config("spark.eventLog.enabled", "false")
+//                .config("spark.eventLog.enabled", "false")
                 .getOrCreate();
         Dataset<Row> data = spark
                 .read()
@@ -44,17 +45,19 @@ public class RF {
                 .option("multiLine", true)
                 .option("inferSchema", true)
                 .load("file:///E:\\mi\\jupyter\\energy_forecasting_notebooks\\final-data.csv");
-//                .load("")
+//                .load("/final-data.csv");
 //        data.createOrReplaceTempView("load");
 //        data.orderBy("load").show();
 
         VectorAssembler vectorAssembler = new VectorAssembler()
                 .setInputCols(new String[]{
-//                        "temp",
-                        "temp1",
-                        "dew1",
-//                       "condition1",
-                        "humi1",
+//                        "condition1",
+//                        "wind1",
+//                        "windspeed1",
+//                        "precip1",
+//                        "temp1",
+//                        "dew1",
+//                        "humi1",
         //              "windspeed",
         //              "precip",
                         "hour",
@@ -114,6 +117,30 @@ public class RF {
         Dataset<Row> predictionFeature7 = spark.sql("select * from all where (timestamp >= '2019-06-07 00:00:00') and (timestamp < '2019-06-08 00:00:00')");
         Dataset<Row> predictionFeature8 = spark.sql("select * from all where (timestamp >= '2019-06-08 00:00:00') and (timestamp < '2019-06-09 00:00:00')");
         Dataset<Row> predictionFeature9 = spark.sql("select * from all where (timestamp >= '2019-06-09 00:00:00') and (timestamp < '2019-06-10 00:00:00')");
+        Dataset<Row> predictionFeature10 = spark.sql("select * from all where (timestamp >= '2019-06-10 00:00:00') and (timestamp < '2019-06-11 00:00:00')");
+
+        //one hour
+        Dataset<Row> predictionFeature11 = spark.sql("select * from all where (timestamp >= '2019-05-01 00:00:00') and (timestamp < '2019-05-01 01:00:00')");
+        Dataset<Row> predictionFeature12 = spark.sql("select * from all where (timestamp >= '2019-05-01 01:00:00') and (timestamp < '2019-05-01 02:00:00')");
+        Dataset<Row> predictionFeature13 = spark.sql("select * from all where (timestamp >= '2019-05-01 02:00:00') and (timestamp < '2019-05-01 03:00:00')");
+        Dataset<Row> predictionFeature14 = spark.sql("select * from all where (timestamp >= '2019-05-01 03:00:00') and (timestamp < '2019-05-01 04:00:00')");
+        Dataset<Row> predictionFeature15 = spark.sql("select * from all where (timestamp >= '2019-05-01 04:00:00') and (timestamp < '2019-05-01 05:00:00')");
+        Dataset<Row> predictionFeature16 = spark.sql("select * from all where (timestamp >= '2019-05-01 05:00:00') and (timestamp < '2019-05-01 06:00:00')");
+        Dataset<Row> predictionFeature17 = spark.sql("select * from all where (timestamp >= '2019-05-01 06:00:00') and (timestamp < '2019-05-01 07:00:00')");
+        Dataset<Row> predictionFeature18 = spark.sql("select * from all where (timestamp >= '2019-05-01 07:00:00') and (timestamp < '2019-05-01 08:00:00')");
+        Dataset<Row> predictionFeature19 = spark.sql("select * from all where (timestamp >= '2019-05-01 08:00:00') and (timestamp < '2019-05-01 09:00:00')");
+        Dataset<Row> predictionFeature20 = spark.sql("select * from all where (timestamp >= '2019-05-01 09:00:00') and (timestamp < '2019-05-01 10:00:00')");
+        Dataset<Row> predictionFeature21 = spark.sql("select * from all where (timestamp >= '2019-05-01 10:00:00') and (timestamp < '2019-05-01 11:00:00')");
+        Dataset<Row> predictionFeature22 = spark.sql("select * from all where (timestamp >= '2019-05-01 11:00:00') and (timestamp < '2019-05-01 12:00:00')");
+        Dataset<Row> predictionFeature23 = spark.sql("select * from all where (timestamp >= '2019-05-01 12:00:00') and (timestamp < '2019-05-01 13:00:00')");
+        Dataset<Row> predictionFeature24 = spark.sql("select * from all where (timestamp >= '2019-05-01 13:00:00') and (timestamp < '2019-05-01 14:00:00')");
+        Dataset<Row> predictionFeature25 = spark.sql("select * from all where (timestamp >= '2019-05-01 14:00:00') and (timestamp < '2019-05-01 15:00:00')");
+        Dataset<Row> predictionFeature26 = spark.sql("select * from all where (timestamp >= '2019-05-01 15:00:00') and (timestamp < '2019-05-01 16:00:00')");
+        Dataset<Row> predictionFeature27 = spark.sql("select * from all where (timestamp >= '2019-05-01 16:00:00') and (timestamp < '2019-05-01 17:00:00')");
+        Dataset<Row> predictionFeature28 = spark.sql("select * from all where (timestamp >= '2019-05-01 17:00:00') and (timestamp < '2019-05-01 18:00:00')");
+        Dataset<Row> predictionFeature29 = spark.sql("select * from all where (timestamp >= '2019-05-01 18:00:00') and (timestamp < '2019-05-01 19:00:00')");
+        Dataset<Row> predictionFeature30 = spark.sql("select * from all where (timestamp >= '2019-05-01 19:00:00') and (timestamp < '2019-05-01 20:00:00')");
+
 
         List<Dataset<Row>> predictionFeatureList= new ArrayList<>();
 
@@ -126,6 +153,27 @@ public class RF {
         predictionFeatureList.add(predictionFeature7);
         predictionFeatureList.add(predictionFeature8);
         predictionFeatureList.add(predictionFeature9);
+        predictionFeatureList.add(predictionFeature10);
+        predictionFeatureList.add(predictionFeature11);
+        predictionFeatureList.add(predictionFeature12);
+        predictionFeatureList.add(predictionFeature13);
+        predictionFeatureList.add(predictionFeature14);
+        predictionFeatureList.add(predictionFeature15);
+        predictionFeatureList.add(predictionFeature16);
+        predictionFeatureList.add(predictionFeature17);
+        predictionFeatureList.add(predictionFeature18);
+        predictionFeatureList.add(predictionFeature19);
+        predictionFeatureList.add(predictionFeature20);
+        predictionFeatureList.add(predictionFeature21);
+        predictionFeatureList.add(predictionFeature22);
+        predictionFeatureList.add(predictionFeature23);
+        predictionFeatureList.add(predictionFeature24);
+        predictionFeatureList.add(predictionFeature25);
+        predictionFeatureList.add(predictionFeature26);
+        predictionFeatureList.add(predictionFeature27);
+        predictionFeatureList.add(predictionFeature28);
+        predictionFeatureList.add(predictionFeature29);
+        predictionFeatureList.add(predictionFeature30);
 
         RandomForestRegressor rf = new RandomForestRegressor()
                 .setLabelCol("load")
@@ -136,7 +184,7 @@ public class RF {
 
         ParamMap[] paramGridBuilder = new ParamGridBuilder()
 //                .addGrid(rf.numTrees(), new int[]{80,100,150})
-                .addGrid(rf.maxDepth(),new int[]{3,4,5})
+//                .addGrid(rf.maxDepth(),new int[]{3,4,5})
 //                .addGrid(rf.subsamplingRate(),new double[]{0.7,0.9,1.0})
 //                .addGrid(rf.maxBins(),new int[]{16,24,32})
                 .build();
@@ -163,11 +211,11 @@ public class RF {
         CrossValidator crossValidator = new CrossValidator()
                 .setEstimator(pipeline)
                 .setEvaluator(regressionEvaluator1)
-                .setEvaluator(regressionEvaluator2)
-                .setEvaluator(regressionEvaluator3)
-                .setEvaluator(regressionEvaluator4)
+//                .setEvaluator(regressionEvaluator2)
+//                .setEvaluator(regressionEvaluator3)
+//                .setEvaluator(regressionEvaluator4)
                 .setEstimatorParamMaps(paramGridBuilder)
-                .setNumFolds(5)
+                .setNumFolds(3)
                 .setParallelism(12);
         long start = System.currentTimeMillis();
         CrossValidatorModel crossValidatorModel = crossValidator.fit(trainingData);
@@ -176,8 +224,28 @@ public class RF {
 
         output.createOrReplaceTempView("all");
 
+        //预测结果
         List<Dataset<Row>> predictions = predictionFeatureList.stream().map(item -> {
             Dataset<Row> transform = crossValidatorModel.transform(item);
+
+            List<Row> predic = transform.select("prediction").collectAsList();
+            List<Row> load = transform.select("load").collectAsList();
+
+            List<Double> predicList = predic.stream().map(row -> {
+                return row.getDouble(0);
+            }).collect(Collectors.toList());
+
+            List<Double> loadList = load.stream().map(row -> {
+                return row.getDouble(0);
+            }).collect(Collectors.toList());
+            double sum = 0D;
+            for (int i = 0; i < loadList.size(); i++) {
+                double temp = Math.abs((loadList.get(i) - predicList.get(i)) / loadList.get(i));
+                sum += temp;
+            }
+            double mape = sum / loadList.size()*100;
+            System.out.println("mape = " + mape);
+
             return transform;
         }).collect(Collectors.toList());
 
