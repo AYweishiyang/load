@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -104,39 +105,40 @@ public class GBTR {
         output.createOrReplaceTempView("all");
         Dataset<Row> trainingData = spark.sql("select * from all where (timestamp < '2019-05-01 00:00:00')");
 
+
         Dataset<Row> predictionFeature1 = spark.sql("select * from all where (timestamp >= '2019-05-01 00:00:00') and (timestamp < '2019-05-02 00:00:00')");
         Dataset<Row> predictionFeature2 = spark.sql("select * from all where (timestamp >= '2019-05-02 00:00:00') and (timestamp < '2019-05-03 00:00:00')");
         Dataset<Row> predictionFeature3 = spark.sql("select * from all where (timestamp >= '2019-05-03 00:00:00') and (timestamp < '2019-05-04 00:00:00')");
         Dataset<Row> predictionFeature4 = spark.sql("select * from all where (timestamp >= '2019-05-04 00:00:00') and (timestamp < '2019-05-05 00:00:00')");
         Dataset<Row> predictionFeature5 = spark.sql("select * from all where (timestamp >= '2019-05-05 00:00:00') and (timestamp < '2019-05-06 00:00:00')");
         Dataset<Row> predictionFeature6 = spark.sql("select * from all where (timestamp >= '2019-05-06 00:00:00') and (timestamp < '2019-05-07 00:00:00')");
-        Dataset<Row> predictionFeature7 = spark.sql("select * from all where (timestamp >= '2019-06-07 00:00:00') and (timestamp < '2019-06-08 00:00:00')");
-        Dataset<Row> predictionFeature8 = spark.sql("select * from all where (timestamp >= '2019-06-08 00:00:00') and (timestamp < '2019-06-09 00:00:00')");
-        Dataset<Row> predictionFeature9 = spark.sql("select * from all where (timestamp >= '2019-06-09 00:00:00') and (timestamp < '2019-06-10 00:00:00')");
-        Dataset<Row> predictionFeature10 = spark.sql("select * from all where (timestamp >= '2019-06-10 00:00:00') and (timestamp < '2019-06-11 00:00:00')");
+        Dataset<Row> predictionFeature7 = spark.sql("select * from all where (timestamp >= '2019-05-07 00:00:00') and (timestamp < '2019-05-08 00:00:00')");
+        Dataset<Row> predictionFeature8 = spark.sql("select * from all where (timestamp >= '2019-05-08 00:00:00') and (timestamp < '2019-05-09 00:00:00')");
+        Dataset<Row> predictionFeature9 = spark.sql("select * from all where (timestamp >= '2019-05-09 00:00:00') and (timestamp < '2019-05-10 00:00:00')");
+        Dataset<Row> predictionFeature10 = spark.sql("select * from all where (timestamp >= '2019-05-10 00:00:00') and (timestamp < '2019-05-11 00:00:00')");
 
         //one hour
-        Dataset<Row> predictionFeature11 = spark.sql("select * from all where (timestamp >= '2019-05-01 04:00:00') and (timestamp < '2019-05-01 05:00:00')");
-        Dataset<Row> predictionFeature12 = spark.sql("select * from all where (timestamp >= '2019-05-01 08:00:00') and (timestamp < '2019-05-01 09:00:00')");
-        Dataset<Row> predictionFeature13 = spark.sql("select * from all where (timestamp >= '2019-05-01 16:00:00') and (timestamp < '2019-05-01 17:00:00')");
-        Dataset<Row> predictionFeature14 = spark.sql("select * from all where (timestamp >= '2019-05-03 07:00:00') and (timestamp < '2019-05-03 08:00:00')");
-        Dataset<Row> predictionFeature15 = spark.sql("select * from all where (timestamp >= '2019-05-03 11:00:00') and (timestamp < '2019-05-03 12:00:00')");
-        Dataset<Row> predictionFeature16 = spark.sql("select * from all where (timestamp >= '2019-05-03 20:00:00') and (timestamp < '2019-05-03 21:00:00')");
-        Dataset<Row> predictionFeature17 = spark.sql("select * from all where (timestamp >= '2019-06-07 06:00:00') and (timestamp < '2019-06-07 07:00:00')");
-        Dataset<Row> predictionFeature18 = spark.sql("select * from all where (timestamp >= '2019-06-07 12:00:00') and (timestamp < '2019-06-07 13:00:00')");
-        Dataset<Row> predictionFeature19 = spark.sql("select * from all where (timestamp >= '2019-06-07 18:00:00') and (timestamp < '2019-06-07 19:00:00')");
-        Dataset<Row> predictionFeature20 = spark.sql("select * from all where (timestamp >= '2019-06-07 22:00:00') and (timestamp < '2019-06-07 23:00:00')");
+        Dataset<Row> predictionFeature11 = spark.sql("select * from all where (timestamp >= '2019-05-11 00:00:00') and (timestamp < '2019-05-12 00:00:00')");
+        Dataset<Row> predictionFeature12 = spark.sql("select * from all where (timestamp >= '2019-05-12 00:00:00') and (timestamp < '2019-05-13 00:00:00')");
+        Dataset<Row> predictionFeature13 = spark.sql("select * from all where (timestamp >= '2019-05-13 00:00:00') and (timestamp < '2019-05-14 00:00:00')");
+        Dataset<Row> predictionFeature14 = spark.sql("select * from all where (timestamp >= '2019-05-14 00:00:00') and (timestamp < '2019-05-15 00:00:00')");
+        Dataset<Row> predictionFeature15 = spark.sql("select * from all where (timestamp >= '2019-05-15 00:00:00') and (timestamp < '2019-05-16 00:00:00')");
+        Dataset<Row> predictionFeature16 = spark.sql("select * from all where (timestamp >= '2019-05-16 00:00:00') and (timestamp < '2019-05-17 00:00:00')");
+        Dataset<Row> predictionFeature17 = spark.sql("select * from all where (timestamp >= '2019-05-17 00:00:00') and (timestamp < '2019-05-18 0:00:00')");
+        Dataset<Row> predictionFeature18 = spark.sql("select * from all where (timestamp >= '2019-05-18 00:00:00') and (timestamp < '2019-05-19 00:00:00')");
+        Dataset<Row> predictionFeature19 = spark.sql("select * from all where (timestamp >= '2019-05-19 00:00:00') and (timestamp < '2019-05-20 00:00:00')");
+        Dataset<Row> predictionFeature20 = spark.sql("select * from all where (timestamp >= '2019-05-20 00:00:00') and (timestamp < '2019-05-21 00:00:00')");
 
-//        Dataset<Row> predictionFeature21 = spark.sql("select * from all where (timestamp >= '2019-05-01 10:00:00') and (timestamp < '2019-05-01 11:00:00')");
-//        Dataset<Row> predictionFeature22 = spark.sql("select * from all where (timestamp >= '2019-05-01 11:00:00') and (timestamp < '2019-05-01 12:00:00')");
-//        Dataset<Row> predictionFeature23 = spark.sql("select * from all where (timestamp >= '2019-05-01 12:00:00') and (timestamp < '2019-05-01 13:00:00')");
-//        Dataset<Row> predictionFeature24 = spark.sql("select * from all where (timestamp >= '2019-05-01 13:00:00') and (timestamp < '2019-05-01 14:00:00')");
-//        Dataset<Row> predictionFeature25 = spark.sql("select * from all where (timestamp >= '2019-05-01 14:00:00') and (timestamp < '2019-05-01 15:00:00')");
-//        Dataset<Row> predictionFeature26 = spark.sql("select * from all where (timestamp >= '2019-05-01 15:00:00') and (timestamp < '2019-05-01 16:00:00')");
-//        Dataset<Row> predictionFeature27 = spark.sql("select * from all where (timestamp >= '2019-05-01 16:00:00') and (timestamp < '2019-05-01 17:00:00')");
-//        Dataset<Row> predictionFeature28 = spark.sql("select * from all where (timestamp >= '2019-05-01 17:00:00') and (timestamp < '2019-05-01 18:00:00')");
-//        Dataset<Row> predictionFeature29 = spark.sql("select * from all where (timestamp >= '2019-05-01 18:00:00') and (timestamp < '2019-05-01 19:00:00')");
-//        Dataset<Row> predictionFeature30 = spark.sql("select * from all where (timestamp >= '2019-05-01 19:00:00') and (timestamp < '2019-05-01 20:00:00')");
+        Dataset<Row> predictionFeature21 = spark.sql("select * from all where (timestamp >= '2019-05-21 00:00:00') and (timestamp < '2019-05-22 00:00:00')");
+        Dataset<Row> predictionFeature22 = spark.sql("select * from all where (timestamp >= '2019-05-22 00:00:00') and (timestamp < '2019-05-23 00:00:00')");
+        Dataset<Row> predictionFeature23 = spark.sql("select * from all where (timestamp >= '2019-05-23 00:00:00') and (timestamp < '2019-05-24 00:00:00')");
+        Dataset<Row> predictionFeature24 = spark.sql("select * from all where (timestamp >= '2019-05-24 00:00:00') and (timestamp < '2019-05-25 00:00:00')");
+        Dataset<Row> predictionFeature25 = spark.sql("select * from all where (timestamp >= '2019-05-25 00:00:00') and (timestamp < '2019-05-26 00:00:00')");
+        Dataset<Row> predictionFeature26 = spark.sql("select * from all where (timestamp >= '2019-05-26 00:00:00') and (timestamp < '2019-05-27 00:00:00')");
+        Dataset<Row> predictionFeature27 = spark.sql("select * from all where (timestamp >= '2019-05-27 00:00:00') and (timestamp < '2019-05-28 00:00:00')");
+        Dataset<Row> predictionFeature28 = spark.sql("select * from all where (timestamp >= '2019-05-28 00:00:00') and (timestamp < '2019-05-29 00:00:00')");
+        Dataset<Row> predictionFeature29 = spark.sql("select * from all where (timestamp >= '2019-05-29 00:00:00') and (timestamp < '2019-05-30 00:00:00')");
+        Dataset<Row> predictionFeature30 = spark.sql("select * from all where (timestamp >= '2019-05-30 00:00:00') and (timestamp < '2019-05-31 00:00:00')");
 
         //one hour
         Dataset<Row> predictionFeature31 = spark.sql("select * from all where (timestamp >= '2019-05-02 00:00:00') and (timestamp < '2019-05-02 01:00:00')");
@@ -182,16 +184,16 @@ public class GBTR {
         predictionFeatureList.add(predictionFeature18);
         predictionFeatureList.add(predictionFeature19);
         predictionFeatureList.add(predictionFeature20);
-//        predictionFeatureList.add(predictionFeature21);
-//        predictionFeatureList.add(predictionFeature22);
-//        predictionFeatureList.add(predictionFeature23);
-//        predictionFeatureList.add(predictionFeature24);
-//        predictionFeatureList.add(predictionFeature25);
-//        predictionFeatureList.add(predictionFeature26);
-//        predictionFeatureList.add(predictionFeature27);
-//        predictionFeatureList.add(predictionFeature28);
-//        predictionFeatureList.add(predictionFeature29);
-//        predictionFeatureList.add(predictionFeature30);
+        predictionFeatureList.add(predictionFeature21);
+        predictionFeatureList.add(predictionFeature22);
+        predictionFeatureList.add(predictionFeature23);
+        predictionFeatureList.add(predictionFeature24);
+        predictionFeatureList.add(predictionFeature25);
+        predictionFeatureList.add(predictionFeature26);
+        predictionFeatureList.add(predictionFeature27);
+        predictionFeatureList.add(predictionFeature28);
+        predictionFeatureList.add(predictionFeature29);
+        predictionFeatureList.add(predictionFeature30);
 
         GBTRegressor gbtRegressor = new GBTRegressor()
                 .setLabelCol("load")
@@ -203,16 +205,27 @@ public class GBTR {
         ParamMap[] paramGridBuilder = new ParamGridBuilder()
                 .addGrid(gbtRegressor.subsamplingRate(),new double[]{0.7,1.0})
                 .addGrid(gbtRegressor.maxDepth(),new int[]{5,7})
-                .addGrid(gbtRegressor.maxIter(),new int[]{20,30})
+                .addGrid(gbtRegressor.maxIter(),new int[]{50,100})
                 .build();
 
         RegressionEvaluator regressionEvaluator1 = new RegressionEvaluator()
                 .setLabelCol("load")
                 .setPredictionCol("prediction")
                 .setMetricName("rmse");
+//        RegressionEvaluator regressionEvaluator2 = new RegressionEvaluator()
+//                .setLabelCol("load")
+//                .setPredictionCol("prediction")
+//                .setMetricName("mse");
+//        RegressionEvaluator regressionEvaluator3 = new RegressionEvaluator()
+//                .setLabelCol("load")
+//                .setPredictionCol("prediction")
+//                .setMetricName("r2");
+//        RegressionEvaluator regressionEvaluator4 = new RegressionEvaluator()
+//                .setLabelCol("load")
+//                .setPredictionCol("prediction")
+//                .setMetricName("mae");
 
         // Train model. This also runs the indexer.
-
         CrossValidator crossValidator = new CrossValidator()
                 .setEstimator(pipeline)
                 .setEvaluator(regressionEvaluator1)
@@ -221,7 +234,7 @@ public class GBTR {
 //                .setEvaluator(regressionEvaluator4)
                 .setEstimatorParamMaps(paramGridBuilder)
                 .setNumFolds(5)
-                .setParallelism(12);
+                .setParallelism(100);
         long start = System.currentTimeMillis();
         CrossValidatorModel crossValidatorModel = crossValidator.fit(trainingData);
 
@@ -229,6 +242,7 @@ public class GBTR {
 
         output.createOrReplaceTempView("all");
 
+        AtomicInteger index = new AtomicInteger(1);
         //预测结果
         List<Dataset<Row>> predictions = predictionFeatureList.stream().map(item -> {
             Dataset<Row> transform = crossValidatorModel.transform(item);
@@ -237,8 +251,8 @@ public class GBTR {
             List<Row> load = transform.select("load").collectAsList();
             List<Row> timestamp = transform.select("timestamp").collectAsList();
 
-            List<Timestamp> timeList = timestamp.stream().map(row -> {
-                return row.getTimestamp(0);
+            List<String> timeList = timestamp.stream().map(row -> {
+                return row.getTimestamp(0).toString();
             }).collect(Collectors.toList());
 
             List<Double> predicList = predic.stream().map(row -> {
@@ -248,20 +262,19 @@ public class GBTR {
             List<Double> loadList = load.stream().map(row -> {
                 return row.getDouble(0);
             }).collect(Collectors.toList());
+            System.out.println("#time" + index + " = " + timeList);
+            System.out.println("predict" + index + " = "+ predicList);
+            System.out.println("load"  + index + " = " + loadList);
 
-            System.out.println(timeList);
-            System.out.println(predicList);
-            System.out.println(loadList);
-
-            System.out.println("---------------------------------------------");
             double sum = 0D;
             for (int i = 0; i < loadList.size(); i++) {
                 double temp = Math.abs((loadList.get(i) - predicList.get(i)) / loadList.get(i));
                 sum += temp;
             }
             double mape = sum / loadList.size()*100;
-            System.out.println("mape = " + mape);
-
+            System.out.println("print(" + mape + ")");
+            System.out.println("######################");
+            index.getAndIncrement();
             return transform;
         }).collect(Collectors.toList());
 

@@ -1,27 +1,18 @@
 package fun.shiyang.forecasting;
 
-import org.apache.spark.ml.Pipeline;
-import org.apache.spark.ml.PipelineModel;
-import org.apache.spark.ml.PipelineStage;
-import org.apache.spark.ml.Transformer;
 import org.apache.spark.ml.evaluation.RegressionEvaluator;
 import org.apache.spark.ml.feature.VectorAssembler;
 import org.apache.spark.ml.linalg.Vector;
-import org.apache.spark.ml.param.ParamMap;
+import org.apache.spark.ml.regression.GBTRegressionModel;
+import org.apache.spark.ml.regression.GBTRegressor;
 import org.apache.spark.ml.regression.RandomForestRegressionModel;
 import org.apache.spark.ml.regression.RandomForestRegressor;
-import org.apache.spark.ml.tuning.CrossValidator;
-import org.apache.spark.ml.tuning.CrossValidatorModel;
-import org.apache.spark.ml.tuning.ParamGridBuilder;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
-import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -31,7 +22,7 @@ import java.util.stream.Collectors;
  * @author ay
  * @create 2020-12-13 11:41
  */
-public class RFNoCv {
+public class GBTRNoCv {
     public static void main(String[] args) throws IOException {
         SparkSession spark = SparkSession
                 .builder()
@@ -199,21 +190,21 @@ public class RFNoCv {
 //        predictionFeatureList.add(predictionFeature29);
 //        predictionFeatureList.add(predictionFeature30);
 
-        RandomForestRegressor rf = new RandomForestRegressor()
+        GBTRegressor gbtRegressor = new GBTRegressor()
                 .setLabelCol("load")
                 .setFeaturesCol("features");
 
-        rf.setMaxDepth(7)
-                .setSubsamplingRate(0.7)
-                .setNumTrees(100);
+        gbtRegressor.setMaxIter(100)
+                .setMaxDepth(7)
+                .setSubsamplingRate(0.7);
 
 
         long start = System.currentTimeMillis();
-        RandomForestRegressionModel randomForestRegressionModel = rf.fit(trainingData);
+        GBTRegressionModel gbtRegressionModel = gbtRegressor.fit(trainingData);
         long end = System.currentTimeMillis();
         System.out.println("train-time= " + (end-start)/1000.0 + " s");
 
-        Vector vector = randomForestRegressionModel.featureImportances();
+        Vector vector = gbtRegressionModel.featureImportances();
 
         double[] doubles = vector.toArray();
 
@@ -229,7 +220,7 @@ public class RFNoCv {
         AtomicInteger index = new AtomicInteger(1);
         //预测结果
         List<Dataset<Row>> predictions = predictionFeatureList.stream().map(item -> {
-            Dataset<Row> transform = randomForestRegressionModel.transform(item);
+            Dataset<Row> transform = gbtRegressionModel.transform(item);
 
             List<Row> predic = transform.select("prediction").collectAsList();
             List<Row> load = transform.select("load").collectAsList();
