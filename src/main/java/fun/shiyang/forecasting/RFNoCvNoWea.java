@@ -1,27 +1,16 @@
 package fun.shiyang.forecasting;
 
-import org.apache.spark.ml.Pipeline;
-import org.apache.spark.ml.PipelineModel;
-import org.apache.spark.ml.PipelineStage;
-import org.apache.spark.ml.Transformer;
 import org.apache.spark.ml.evaluation.RegressionEvaluator;
 import org.apache.spark.ml.feature.VectorAssembler;
 import org.apache.spark.ml.linalg.Vector;
-import org.apache.spark.ml.param.ParamMap;
 import org.apache.spark.ml.regression.RandomForestRegressionModel;
 import org.apache.spark.ml.regression.RandomForestRegressor;
-import org.apache.spark.ml.tuning.CrossValidator;
-import org.apache.spark.ml.tuning.CrossValidatorModel;
-import org.apache.spark.ml.tuning.ParamGridBuilder;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
-import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -31,7 +20,7 @@ import java.util.stream.Collectors;
  * @author ay
  * @create 2020-12-13 11:41
  */
-public class RFNoCv {
+public class RFNoCvNoWea {
     public static void main(String[] args) throws IOException {
         SparkSession spark = SparkSession
                 .builder()
@@ -45,20 +34,20 @@ public class RFNoCv {
                 .option("header", "true")
                 .option("multiLine", true)
                 .option("inferSchema", true)
-//                .load("file:///E:\\mi\\jupyter\\energy_forecasting_notebooks\\final-data.csv");
-                .load("/final-data.csv");
+                .load("file:///E:\\mi\\jupyter\\energy_forecasting_notebooks\\final-data.csv");
+//                .load("/final-data.csv");
 //        data.createOrReplaceTempView("load");
 //        data.orderBy("load").show();
 
         VectorAssembler vectorAssembler = new VectorAssembler()
                 .setInputCols(new String[]{
-                        "condition1",
-                        "wind1",
-                        "windspeed1",
-                        "precip1",
-                        "temp1",
-                        "dew1",
-                        "humi1",
+//                        "condition1",
+//                        "wind1",
+//                        "windspeed1",
+//                        "precip1",
+//                        "temp1",
+//                        "dew1",
+//                        "humi1",
                         //              "windspeed",
                         //              "precip",
                         "hour",
@@ -108,7 +97,6 @@ public class RFNoCv {
 
         output.createOrReplaceTempView("all");
         Dataset<Row> trainingData = spark.sql("select * from all where (timestamp < '2019-05-01 00:00:00')");
-
 
         Dataset<Row> predictionFeature1 = spark.sql("select * from all where (timestamp >= '2019-05-01 00:00:00') and (timestamp < '2019-05-02 00:00:00')");
         Dataset<Row> predictionFeature2 = spark.sql("select * from all where (timestamp >= '2019-05-02 00:00:00') and (timestamp < '2019-05-03 00:00:00')");
