@@ -36,7 +36,7 @@ public class RFNoCv {
         SparkSession spark = SparkSession
                 .builder()
                 .appName("RF")
-                .config("spark.master","local[*]")
+//                .config("spark.master","local[*]")
 //                .config("spark.eventLog.enabled", "false")
                 .getOrCreate();
         Dataset<Row> data = spark
@@ -46,16 +46,16 @@ public class RFNoCv {
                 .option("multiLine", true)
                 .option("inferSchema", true)
 //                .load("file:///E:\\mi\\jupyter\\energy_forecasting_notebooks\\final-data.csv");
-                .load("/final-data.csv");
+                .load("hdfs://namenode:9000/input/big.csv");
 //        data.createOrReplaceTempView("load");
-//        data.orderBy("load").show();
+        data.orderBy("load").show();
 
         VectorAssembler vectorAssembler = new VectorAssembler()
                 .setInputCols(new String[]{
-                        "condition1",
-                        "wind1",
-                        "windspeed1",
-                        "precip1",
+//                        "condition1",
+//                        "wind1",
+//                        "windspeed1",
+//                        "precip1",
                         "temp1",
                         "dew1",
                         "humi1",
@@ -172,35 +172,35 @@ public class RFNoCv {
 
         List<Dataset<Row>> predictionFeatureList= new ArrayList<>();
 //
-        predictionFeatureList.add(predictionFeature1);
-        predictionFeatureList.add(predictionFeature2);
-        predictionFeatureList.add(predictionFeature3);
-        predictionFeatureList.add(predictionFeature4);
-        predictionFeatureList.add(predictionFeature5);
-        predictionFeatureList.add(predictionFeature6);
-        predictionFeatureList.add(predictionFeature7);
-        predictionFeatureList.add(predictionFeature8);
-        predictionFeatureList.add(predictionFeature9);
-        predictionFeatureList.add(predictionFeature10);
-        predictionFeatureList.add(predictionFeature11);
-        predictionFeatureList.add(predictionFeature12);
-        predictionFeatureList.add(predictionFeature13);
-        predictionFeatureList.add(predictionFeature14);
-        predictionFeatureList.add(predictionFeature15);
-        predictionFeatureList.add(predictionFeature16);
-        predictionFeatureList.add(predictionFeature17);
-        predictionFeatureList.add(predictionFeature18);
-        predictionFeatureList.add(predictionFeature19);
-        predictionFeatureList.add(predictionFeature20);
-        predictionFeatureList.add(predictionFeature21);
-        predictionFeatureList.add(predictionFeature22);
-        predictionFeatureList.add(predictionFeature23);
-        predictionFeatureList.add(predictionFeature24);
-        predictionFeatureList.add(predictionFeature25);
-        predictionFeatureList.add(predictionFeature26);
-        predictionFeatureList.add(predictionFeature27);
-        predictionFeatureList.add(predictionFeature28);
-        predictionFeatureList.add(predictionFeature29);
+//        predictionFeatureList.add(predictionFeature1);
+//        predictionFeatureList.add(predictionFeature2);
+//        predictionFeatureList.add(predictionFeature3);
+//        predictionFeatureList.add(predictionFeature4);
+//        predictionFeatureList.add(predictionFeature5);
+//        predictionFeatureList.add(predictionFeature6);
+//        predictionFeatureList.add(predictionFeature7);
+//        predictionFeatureList.add(predictionFeature8);
+//        predictionFeatureList.add(predictionFeature9);
+//        predictionFeatureList.add(predictionFeature10);
+//        predictionFeatureList.add(predictionFeature11);
+//        predictionFeatureList.add(predictionFeature12);
+//        predictionFeatureList.add(predictionFeature13);
+//        predictionFeatureList.add(predictionFeature14);
+//        predictionFeatureList.add(predictionFeature15);
+//        predictionFeatureList.add(predictionFeature16);
+//        predictionFeatureList.add(predictionFeature17);
+//        predictionFeatureList.add(predictionFeature18);
+//        predictionFeatureList.add(predictionFeature19);
+//        predictionFeatureList.add(predictionFeature20);
+//        predictionFeatureList.add(predictionFeature21);
+//        predictionFeatureList.add(predictionFeature22);
+//        predictionFeatureList.add(predictionFeature23);
+//        predictionFeatureList.add(predictionFeature24);
+//        predictionFeatureList.add(predictionFeature25);
+//        predictionFeatureList.add(predictionFeature26);
+//        predictionFeatureList.add(predictionFeature27);
+//        predictionFeatureList.add(predictionFeature28);
+//        predictionFeatureList.add(predictionFeature29);
 //        predictionFeatureList.add(predictionFeature30);
 //
 //        predictionFeatureList.add(predictionFeature31);
@@ -254,48 +254,48 @@ public class RFNoCv {
 
         output.createOrReplaceTempView("all");
 
-        AtomicInteger index = new AtomicInteger(1);
-        //预测结果
-        List<Dataset<Row>> predictions = predictionFeatureList.stream().map(item -> {
-            Dataset<Row> transform = randomForestRegressionModel.transform(item);
+//        AtomicInteger index = new AtomicInteger(1);
+//        //预测结果
+//        List<Dataset<Row>> predictions = predictionFeatureList.stream().map(item -> {
+//            Dataset<Row> transform = randomForestRegressionModel.transform(item);
+//
+//            List<Row> predic = transform.select("prediction").collectAsList();
+//            List<Row> load = transform.select("load").collectAsList();
+//            List<Row> timestamp = transform.select("timestamp").collectAsList();
+//
+//            List<String> timeList = timestamp.stream().map(row -> {
+//                return row.getTimestamp(0).toString();
+//            }).collect(Collectors.toList());
+//
+//            List<Double> predicList = predic.stream().map(row -> {
+//                return row.getDouble(0);
+//            }).collect(Collectors.toList());
+//
+//            List<Double> loadList = load.stream().map(row -> {
+//                return row.getDouble(0);
+//            }).collect(Collectors.toList());
+////            System.out.println("#time" + index + " = " + timeList);
+////            System.out.println("predict" + index + " = "+ predicList);
+////            System.out.println("load"  + index + " = " + loadList);
+//
+//            double sum = 0D;
+//            for (int i = 0; i < loadList.size(); i++) {
+//                double temp = Math.abs((loadList.get(i) - predicList.get(i)) / loadList.get(i));
+//                sum += temp;
+//            }
+//            double mape = sum / loadList.size()*100;
+//            System.out.println( mape + ",");
+////            System.out.println("######################");
+//            index.getAndIncrement();
+//            return transform;
+//        }).collect(Collectors.toList());
 
-            List<Row> predic = transform.select("prediction").collectAsList();
-            List<Row> load = transform.select("load").collectAsList();
-            List<Row> timestamp = transform.select("timestamp").collectAsList();
-
-            List<String> timeList = timestamp.stream().map(row -> {
-                return row.getTimestamp(0).toString();
-            }).collect(Collectors.toList());
-
-            List<Double> predicList = predic.stream().map(row -> {
-                return row.getDouble(0);
-            }).collect(Collectors.toList());
-
-            List<Double> loadList = load.stream().map(row -> {
-                return row.getDouble(0);
-            }).collect(Collectors.toList());
-//            System.out.println("#time" + index + " = " + timeList);
-//            System.out.println("predict" + index + " = "+ predicList);
-//            System.out.println("load"  + index + " = " + loadList);
-
-            double sum = 0D;
-            for (int i = 0; i < loadList.size(); i++) {
-                double temp = Math.abs((loadList.get(i) - predicList.get(i)) / loadList.get(i));
-                sum += temp;
-            }
-            double mape = sum / loadList.size()*100;
-            System.out.println( mape + ",");
-//            System.out.println("######################");
-            index.getAndIncrement();
-            return transform;
-        }).collect(Collectors.toList());
-
-        predictions.forEach(item -> {
-            double rmse = regressionEvaluator1.evaluate(item);
-            System.out.println("(rmse) on test data = " + rmse);
-//            Dataset<Row> prediction = item.select("prediction");
-
-        });
+//        predictions.forEach(item -> {
+//            double rmse = regressionEvaluator1.evaluate(item);
+//            System.out.println("(rmse) on test data = " + rmse);
+////            Dataset<Row> prediction = item.select("prediction");
+//
+//        });
         spark.stop();
     }
 }
